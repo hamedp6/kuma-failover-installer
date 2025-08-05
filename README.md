@@ -19,13 +19,13 @@ When one of your servers goes down, this script will automatically update your C
 ## 🚀 One-click Installation
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/YOUR_USERNAME/kuma-failover-installer/master/install.sh)
+bash <(curl -s https://raw.githubusercontent.com/hamedp6/kuma-failover-installer/main/install.sh)
 ```
 
 or
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/YOUR_USERNAME/kuma-failover-installer/master/install.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/hamedp6/kuma-failover-installer/main/install.sh)
 ```
 
 ---
