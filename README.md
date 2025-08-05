@@ -55,6 +55,3 @@ bash <(wget -qO- https://raw.githubusercontent.com/YOUR_USERNAME/kuma-failover-i
 
 ---
 
-## 🧠 License
-
-MIT. Use at your own risk.
