@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Uptime Kuma → Cloudflare DNS failover with a built‑in Flask UI (HTMX/Jinja)
+Uptime Kuma → Cloudflare DNS failover with a built-in Flask UI (HTMX/Jinja)
 
 Features
 - Webhooks: /webhook/server1, /webhook/server2 (expects {"heartbeat":{"status":1|0}})
@@ -300,6 +300,15 @@ def decide_failover(source: str = "auto") -> str:
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
+# --- HTMX helpers (refresh / redirect) ---
+def hx_refresh():
+    """Tell HTMX to reload the current page."""
+    return Response("", 204, {"HX-Refresh": "true"})
+
+def hx_redirect(url: str):
+    """Tell HTMX to navigate to a full page URL."""
+    return Response("", 204, {"HX-Redirect": url})
+
 # Template loader for base/layout
 BASE_HTML = """
 <!doctype html>
@@ -440,8 +449,7 @@ LOGS_HTML = """
 <script>
 const logbox=document.getElementById('logbox');
 const es=new EventSource('{{ url_for('api_logs_stream') }}');
-es.onmessage=(e)=>{logbox.textContent += e.data +"
-"; logbox.scrollTop = logbox.scrollHeight;};
+es.onmessage=(e)=>{logbox.textContent += e.data + "\\n"; logbox.scrollTop = logbox.scrollHeight;};
 </script>
 {% endblock %}
 """
@@ -567,7 +575,7 @@ def api_records():
 def api_refresh_records():
     check_csrf()
     load_dns_records()
-    return ("", 204)
+    return hx_refresh()  # force full page reload
 
 
 @app.post("/api/test-telegram")
@@ -575,7 +583,7 @@ def api_refresh_records():
 def api_test_telegram():
     check_csrf()
     telegram_send("Test from Failover UI")
-    return ("", 204)
+    return hx_refresh()
 
 
 @app.post("/api/switch")
@@ -589,7 +597,7 @@ def api_switch():
     ip = SERVER1_IP if target == "server1" else SERVER2_IP
     update_dns(ip)
     logger.info("Manual switch → %s (%s)", ip, target)
-    return ("", 204)
+    return hx_refresh()
 
 
 @app.post("/api/freeze")
@@ -601,7 +609,7 @@ def api_freeze():
     with state_lock:
         app_state.freeze = enabled
         app_state.save(STATE_FILE)
-    return ("", 204)
+    return hx_refresh()
 
 
 @app.get("/api/config")
@@ -637,7 +645,7 @@ def api_config_post():
         app_state.up_threshold = max(1, _int("up_threshold", app_state.up_threshold))
         app_state.down_threshold = max(0, _int("down_threshold", app_state.down_threshold))
         app_state.save(STATE_FILE)
-    return ("", 204)
+    return hx_redirect(url_for("ui_settings"))  # back to settings with a full load
 
 
 @app.get("/api/diagnostics")
@@ -682,7 +690,7 @@ def api_webhook_secret_rotate():
     with state_lock:
         app_state.webhook_secret = secrets.token_urlsafe(24)
         app_state.save(STATE_FILE)
-    return ("", 204)
+    return hx_redirect(url_for("ui_settings"))
 
 
 @app.get("/api/logs")
@@ -714,9 +722,7 @@ def api_logs_stream():
                     chunk = f.read()
                     last_size = f.tell()
                 for line in chunk.splitlines():
-                    yield f"data: {line}\\n\\n"
-
-
+                    yield f"data: {line}\n\n"
             except Exception:
                 pass
             time.sleep(1)
@@ -733,7 +739,7 @@ def metrics():
     if app_state.last_switch_at:
         try:
             last = dt.datetime.fromisoformat(app_state.last_switch_at.replace("Z", "+00:00")).timestamp()
-            lines.append(f"failover_last_switch {{}} {last}")
+            lines.append(f"failover_last_switch {last}")
         except Exception:
             pass
     return Response("\n".join(lines) + "\n", mimetype="text/plain")
