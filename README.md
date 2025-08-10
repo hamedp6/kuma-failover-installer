@@ -323,14 +323,6 @@ Old state keys get migrated in memory. If you want a fresh start:
 └─ failover.log
 ```
 
----
-
-## License
-
-MIT (see `LICENSE`).
-
----
-
 ## Contributing
 
 Open issues/PRs. Keep the installer idempotent and small. Don’t leak secrets to logs. Add useful metrics before adding “flashy” features.
