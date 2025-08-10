@@ -599,7 +599,7 @@ def api_switch():
     ip = SERVER1_IP if target == "server1" else SERVER2_IP
     update_dns(ip)
     logger.info("Manual switch → %s (%s)", ip, target)
-    telegram_send(msg)
+    telegram_send("Manual switch → %s (%s)", ip, target)
     return hx_refresh()
 
 
