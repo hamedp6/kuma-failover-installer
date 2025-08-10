@@ -96,7 +96,7 @@ download_app() {
   blu "Fetching ${PYFILE} from ${REPO_RAW}…"
   if ! curl -fsSL "${REPO_RAW}/${PYFILE}" -o "${APP_DIR}/${PYFILE}"; then
     red "Failed to download ${PYFILE} from ${REPO_RAW}"
-    red "Set REPO_RAW or run with --repo https://raw.githubusercontent.com/<org>/<repo>/main"
+    red "Set REPO_RAW or run with --repo https://raw.githubusercontent.com/hamedp6/kuma-failover-installer/main"
     exit 1
   fi
   chown "${APP_USER}:${APP_USER}" "${APP_DIR}/${PYFILE}"
