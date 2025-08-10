@@ -596,11 +596,26 @@ def api_switch():
     target = str(form.get("target", "")).lower()
     if target not in {"server1", "server2"}:
         abort(400, "target must be server1 or server2")
+
     ip = SERVER1_IP if target == "server1" else SERVER2_IP
+
+    # Snapshot previous target before changing
+    with state_lock:
+        prev_ip = app_state.current_dns
+
+    if prev_ip == ip:
+        msg = f"🧑‍⚖️ Manual switch requested → {ip} ({target}), but DNS already points here. No change."
+        logger.info(msg)
+        telegram_send(msg)   # send even if no effective change
+        return hx_refresh()
+
+    # Apply the change
     update_dns(ip)
-    logger.info("Manual switch → %s (%s)", ip, target)
-    telegram_send("Manual switch → %s (%s)", ip, target)
+    msg = f"🧑‍⚖️ Manual switch: {prev_ip} → {ip} ({target})"
+    logger.info(msg)
+    telegram_send(msg)       # send on actual change
     return hx_refresh()
+
 
 
 @app.post("/api/freeze")
