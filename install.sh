@@ -6,7 +6,7 @@ set -euo pipefail
 # You can set REPO_RAW to your GitHub raw base, e.g.:
 #   export REPO_RAW="https://raw.githubusercontent.com/<org>/<repo>/main"
 # Or pass --repo "https://raw.githubusercontent.com/<org>/<repo>/main"
-REPO_RAW_DEFAULT="https://raw.githubusercontent.com/<org>/<repo>/main"
+REPO_RAW_DEFAULT="https://raw.githubusercontent.com/hamedp6/kuma-failover-installer/main"
 REPO_RAW="${REPO_RAW:-$REPO_RAW_DEFAULT}"
 
 APP_NAME="failover"
