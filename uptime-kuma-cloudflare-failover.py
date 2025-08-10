@@ -240,6 +240,7 @@ def decide_failover(source: str = "auto") -> str:
                 f"S2={'UP' if app_state.server2_up else 'DOWN'} | Current: {app_state.current_dns}"
             )
             logger.info(msg)
+            telegram_send(msg)
             return msg
 
         if not _cooldown_ok(app_state.last_switch_at):
@@ -289,6 +290,7 @@ def decide_failover(source: str = "auto") -> str:
             f"S2={'UP' if app_state.server2_up else 'DOWN'} | Current: {app_state.current_dns}"
         )
         logger.info(msg)
+        telegram_send(msg)
         with state_lock:
             app_state.save(STATE_FILE)
     return msg
